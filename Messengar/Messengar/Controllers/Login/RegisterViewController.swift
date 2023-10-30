@@ -20,6 +20,9 @@ class RegisterViewController: UIViewController {
         imageView.image = UIImage(systemName: "person")
         imageView.tintColor = .gray
         imageView.contentMode = .scaleAspectFit
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 2
+        imageView.layer.borderColor = UIColor.lightGray.cgColor
         return imageView
     }()
     
@@ -150,7 +153,7 @@ class RegisterViewController: UIViewController {
     }
     
     @objc private func didTapChangeProfilePic() {
-        print(#fileID, #function, #line, "this is - imageView터치")
+        presentPhotoActionSheet()
     }
     
     override func viewDidLayoutSubviews() {
@@ -161,6 +164,7 @@ class RegisterViewController: UIViewController {
                                  y: 20,
                                  width: size,
                                  height: size)
+        imageView.layer.cornerRadius = imageView.width / 2
         firstNameField.frame = CGRect(x: 30,
                                       y: imageView.bottom + 10,
                                       width: scrollView.width - 60,
@@ -190,11 +194,11 @@ class RegisterViewController: UIViewController {
         lastNameField.resignFirstResponder()
         
         guard let firstName = firstNameField.text,
-                let lastName = lastNameField.text,
-                let email = emailField.text,
-                let password = passwordField.text,
-                !email.isEmpty, !password.isEmpty, !firstName.isEmpty, !lastName.isEmpty,
-                password.count >= 6 else {
+              let lastName = lastNameField.text,
+              let email = emailField.text,
+              let password = passwordField.text,
+              !email.isEmpty, !password.isEmpty, !firstName.isEmpty, !lastName.isEmpty,
+              password.count >= 6 else {
             alertUserLoginError()
             return
         }
@@ -228,5 +232,58 @@ extension RegisterViewController: UITextFieldDelegate {
             registerButtonTapped()
         }
         return true
+    }
+}
+
+extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    func presentPhotoActionSheet() {
+        let actionSheet = UIAlertController(title: "프로필사진",
+                                            message: "사진을 어떻게 설정하겠어요?",
+                                            preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "취소",
+                                            style: .cancel,
+                                            handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "사진찍기",
+                                            style: .default,
+                                            handler: { [weak self] _ in
+            self?.presentCamera()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "사진 고르기",
+                                            style: .default,
+                                            handler: {[weak self] _ in
+            self?.presentPhotoPicker()
+        }))
+        present(actionSheet, animated: true)
+    }
+    
+    func presentCamera() {
+        let vc = UIImagePickerController()
+        vc.sourceType = .camera
+        vc.delegate = self
+        vc.allowsEditing = true
+        present(vc, animated: true)
+    }
+    
+    func presentPhotoPicker() {
+        let vc = UIImagePickerController()
+        vc.sourceType = .photoLibrary
+        vc.delegate = self
+        vc.allowsEditing = true
+        present(vc, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        print(#fileID, #function, #line, "this is - info \(info)")
+        guard let selectedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else {
+            return
+        }
+        self.imageView.image = selectedImage
+    }
+    
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
 }
