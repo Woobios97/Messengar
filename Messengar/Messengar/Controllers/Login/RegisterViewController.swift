@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
@@ -41,7 +42,7 @@ class RegisterViewController: UIViewController {
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         field.leftViewMode = .always
         field.backgroundColor = .white
-        field.textColor = .systemBackground
+        field.textColor = .black
         return field
     }()
     
@@ -60,7 +61,7 @@ class RegisterViewController: UIViewController {
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         field.leftViewMode = .always
         field.backgroundColor = .white
-        field.textColor = .systemBackground
+        field.textColor = .black
         return field
     }()
     
@@ -78,8 +79,8 @@ class RegisterViewController: UIViewController {
         )
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
-        field.textColor = .systemBackground
+        field.textColor = .black
+        field.textColor = .white
         return field
     }()
     
@@ -99,7 +100,7 @@ class RegisterViewController: UIViewController {
         field.leftViewMode = .always
         field.backgroundColor = .white
         field.isSecureTextEntry = true
-        field.textColor = .systemBackground
+        field.textColor = .black
         return field
     }()
     
@@ -117,7 +118,7 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "로그인"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         
         let button = UIButton(type: .custom)
         button.frame = CGRect(x: 0, y: 0, width: 50, height: 50)  // 여기에서 크기를 설정합니다
@@ -204,6 +205,15 @@ class RegisterViewController: UIViewController {
         }
         
         // Firebase Login
+        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
+            guard let result = authResult, error == nil else {
+                print(#fileID, #function, #line, "this is - 계정생성오류")
+                return
+            }
+            
+            let user = result.user
+            print(#fileID, #function, #line, "this is - 새로운 유저 \(user)")
+        })
     }
     
     func alertUserLoginError() {
