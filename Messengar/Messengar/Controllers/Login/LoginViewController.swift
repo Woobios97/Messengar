@@ -6,7 +6,9 @@
 //
 
 import UIKit
+import FirebaseCore
 import FirebaseAuth
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
     
@@ -15,7 +17,7 @@ class LoginViewController: UIViewController {
         scrollView.clipsToBounds = true
         return scrollView
     }()
-        
+    
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "logo")
@@ -38,7 +40,7 @@ class LoginViewController: UIViewController {
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         field.leftViewMode = .always
         field.backgroundColor = .white
-        field.textColor = .systemBackground
+        field.textColor = .black
         return field
     }()
     
@@ -58,13 +60,24 @@ class LoginViewController: UIViewController {
         field.leftViewMode = .always
         field.backgroundColor = .white
         field.isSecureTextEntry = true
-        field.textColor = .systemBackground
+        field.textColor = .black
         return field
     }()
     
     private let loginButton: UIButton = {
         let button = UIButton()
         button.setTitle("로그인", for: .normal)
+        button.backgroundColor = .link
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        return button
+    }()
+    
+    private let GoogleloginButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("구글로그인", for: .normal)
         button.backgroundColor = .link
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
@@ -86,12 +99,16 @@ class LoginViewController: UIViewController {
         button.setTitle("등록", for: .normal)
         button.setTitleColor(UIColor.white, for: .normal)  // 버튼 텍스트 색상 설정
         button.addTarget(self, action: #selector(didTapRegister), for: .touchUpInside)
-
+        
         let barButtonItem = UIBarButtonItem(customView: button)
         navigationItem.rightBarButtonItem = barButtonItem
         
         loginButton.addTarget(self,
                               action: #selector(loginButtonTapped),
+                              for: .touchUpInside)
+        
+        GoogleloginButton.addTarget(self,
+                              action: #selector(googleLogin),
                               for: .touchUpInside)
         
         emailField.delegate = self
@@ -103,6 +120,8 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(emailField)
         scrollView.addSubview(passwordField)
         scrollView.addSubview(loginButton)
+        scrollView.addSubview(GoogleloginButton)
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -122,13 +141,16 @@ class LoginViewController: UIViewController {
                                      width: scrollView.width - 60,
                                      height: 52)
         loginButton.frame = CGRect(x: 30,
-                                     y: passwordField.bottom + 10,
-                                     width: scrollView.width - 60,
-                                     height: 52)
+                                   y: passwordField.bottom + 10,
+                                   width: scrollView.width - 60,
+                                   height: 52)
+        GoogleloginButton.frame = CGRect(x: 30,
+                                   y: loginButton.bottom + 10,
+                                   width: scrollView.width - 60,
+                                   height: 52)
     }
     
     @objc private func loginButtonTapped() {
-        
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
@@ -139,21 +161,25 @@ class LoginViewController: UIViewController {
         }
         
         // Firebase Login
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password , completion: { [weak self] authResult, error in
+            guard let strongself = self else {
+                return
+            }
             guard let result = authResult, error == nil else {
                 print(#fileID, #function, #line, "this is - 로그인실패")
                 return
             }
             let user = result.user
             print(#fileID, #function, #line, "this is - 로그인유저 : \(user)")
-        }
+            strongself.navigationController?.dismiss(animated: true)
+        })
     }
     
     func alertUserLoginError() {
-        let alert = UIAlertController(title: "확인", 
+        let alert = UIAlertController(title: "확인",
                                       message: "로그인을 먼저해주세요",
                                       preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "취소", 
+        alert.addAction(UIAlertAction(title: "취소",
                                       style: .cancel))
         present(alert, animated: true)
     }
@@ -176,5 +202,60 @@ extension LoginViewController: UITextFieldDelegate {
             loginButtonTapped()
         }
         return true
+    }
+}
+
+extension LoginViewController {
+    
+   @objc private func googleLogin() {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        
+        // Create Google Sign In configuration object.
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        // Start the sign in flow!
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] result, error in
+            guard let result = result, error == nil else {
+                print(#fileID, #function, #line, "this is - ")
+                return
+            }
+            
+            guard let profile = result.user.profile else {
+                return
+            }
+            
+            let email = profile.email
+            let firstName = profile.givenName
+            let lastName = profile.familyName
+            
+            DatabaseManager.shared.userExists(with: email, completion: { exists in
+                if !exists {
+                    DatabaseManager.shared.insertUser(with: chatAppUser(firstName: firstName ?? "",
+                                                                        lastName: lastName ?? "",
+                                                                        emailAddress: email))
+                }
+            })
+            
+            let user = result.user
+            
+            print(#fileID, #function, #line, "this is - \(user)")
+            guard let idToken = user.idToken?.tokenString else {
+                print(#fileID, #function, #line, "this is - 토큰가져오기실패")
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                           accessToken: user.accessToken.tokenString)
+            Auth.auth().signIn(with: credential) { result, error in
+                guard result != nil, error == nil else {
+                    print(#fileID, #function, #line, "this is - 로그인실패")
+                    return
+                }
+                self.navigationController?.dismiss(animated: true)
+                print(#fileID, #function, #line, "this is - 로그인성공")
+            }
+            
+        }
     }
 }
