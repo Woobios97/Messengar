@@ -4,8 +4,12 @@
 target 'Messengar' do
   use_frameworks!
   
-  pod 'Firebase/Core'
-  pod 'Firebase/Auth'
-  pod 'Firebase/Database'
+# Firebase
+pod 'Firebase/Core'
+pod 'Firebase/Auth'
+pod 'Firebase/Database'
+
+# Google Sign IN
+pod 'GoogleSignIn'
 
 end
