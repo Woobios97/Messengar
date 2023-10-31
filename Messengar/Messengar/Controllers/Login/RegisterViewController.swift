@@ -18,11 +18,10 @@ class RegisterViewController: UIViewController {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "person")
+        imageView.image = UIImage(systemName: "person.circle")
         imageView.tintColor = .gray
         imageView.contentMode = .scaleAspectFit
         imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 2
         imageView.layer.borderColor = UIColor.lightGray.cgColor
         return imageView
     }()
@@ -80,7 +79,6 @@ class RegisterViewController: UIViewController {
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
         field.leftViewMode = .always
         field.textColor = .black
-        field.textColor = .white
         return field
     }()
     
@@ -205,20 +203,33 @@ class RegisterViewController: UIViewController {
         }
         
         // Firebase Login
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
-            guard let result = authResult, error == nil else {
-                print(#fileID, #function, #line, "this is - 계정생성오류")
+        
+        /// 기존에 있던 이메일과 겹침여부를 파악한다.
+        DatabaseManager.shared.userExists(with: email, completion: { [weak self] exists in
+            guard let strongSelf = self else {
                 return
             }
-            
-            let user = result.user
-            print(#fileID, #function, #line, "this is - 새로운 유저 \(user)")
+            guard !exists else {
+                // 사용자가 이미 존재한다.
+                strongSelf.alertUserLoginError(message: "이미 이메일 주소가 있습니다. 이메일주소를 다시 한번 확인해주세요.")
+                return
+            }
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: {  authResult, error in
+                guard authResult != nil, error == nil else {
+                    print(#fileID, #function, #line, "this is - 계정생성오류")
+                    return
+                }
+                DatabaseManager.shared.insertUser(with: chatAppUser(firstName: firstName,
+                                                                    lastName: lastName,
+                                                                    emailAddress: email))
+                strongSelf.navigationController?.dismiss(animated: true)
+            })
         })
     }
     
-    func alertUserLoginError() {
+    func alertUserLoginError(message: String = "등록을 먼저해주세요") {
         let alert = UIAlertController(title: "확인",
-                                      message: "등록을 먼저해주세요",
+                                      message: message,
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소",
                                       style: .cancel))
@@ -291,7 +302,6 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         }
         self.imageView.image = selectedImage
     }
-    
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)

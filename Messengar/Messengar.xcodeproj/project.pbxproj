@@ -15,13 +15,14 @@
 		A51185092AEF9E320070F1A9 /* NewConsersationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51185082AEF9E320070F1A9 /* NewConsersationViewController.swift */; };
 		A511850B2AEF9E440070F1A9 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A511850A2AEF9E440070F1A9 /* ProfileViewController.swift */; };
 		A511850E2AEFA66A0070F1A9 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A511850D2AEFA66A0070F1A9 /* Extensions.swift */; };
+		A528105D2AF00A0100E12963 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A528105C2AF00A0100E12963 /* DatabaseManager.swift */; };
+		A528105F2AF0F90D00E12963 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A528105E2AF0F90D00E12963 /* GoogleService-Info.plist */; };
 		A5A84C112AEF95F300CB92A3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A84C102AEF95F300CB92A3 /* AppDelegate.swift */; };
 		A5A84C132AEF95F300CB92A3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A84C122AEF95F300CB92A3 /* SceneDelegate.swift */; };
 		A5A84C152AEF95F300CB92A3 /* ConservationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A84C142AEF95F300CB92A3 /* ConservationViewController.swift */; };
 		A5A84C182AEF95F300CB92A3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C162AEF95F300CB92A3 /* Main.storyboard */; };
 		A5A84C1A2AEF95F400CB92A3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C192AEF95F400CB92A3 /* Assets.xcassets */; };
 		A5A84C1D2AEF95F400CB92A3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C1B2AEF95F400CB92A3 /* LaunchScreen.storyboard */; };
-		A5D78D812AEFF13600ED54B4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A5D78D802AEFF13600ED54B4 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,8 @@
 		A51185082AEF9E320070F1A9 /* NewConsersationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConsersationViewController.swift; sourceTree = "<group>"; };
 		A511850A2AEF9E440070F1A9 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		A511850D2AEFA66A0070F1A9 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		A528105C2AF00A0100E12963 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		A528105E2AF0F90D00E12963 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A5A84C0D2AEF95F300CB92A3 /* Messengar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messengar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5A84C102AEF95F300CB92A3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5A84C122AEF95F300CB92A3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -42,7 +45,6 @@
 		A5A84C192AEF95F400CB92A3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A5A84C1C2AEF95F400CB92A3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A5A84C1E2AEF95F400CB92A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A5D78D802AEFF13600ED54B4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BC0DBE9CC50F53AF97DA61FE /* Pods-Messengar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messengar.debug.xcconfig"; path = "Target Support Files/Pods-Messengar/Pods-Messengar.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,6 +111,7 @@
 				A5A84C102AEF95F300CB92A3 /* AppDelegate.swift */,
 				A5A84C122AEF95F300CB92A3 /* SceneDelegate.swift */,
 				A511850D2AEFA66A0070F1A9 /* Extensions.swift */,
+				A528105C2AF00A0100E12963 /* DatabaseManager.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -152,7 +155,7 @@
 		A5A84C0F2AEF95F300CB92A3 /* Messengar */ = {
 			isa = PBXGroup;
 			children = (
-				A5D78D802AEFF13600ED54B4 /* GoogleService-Info.plist */,
+				A528105E2AF0F90D00E12963 /* GoogleService-Info.plist */,
 				A51184FE2AEF9BD30070F1A9 /* Resources */,
 				A51184FD2AEF9BCE0070F1A9 /* ViewModels */,
 				A51184FC2AEF9BCA0070F1A9 /* Models */,
@@ -232,7 +235,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5A84C1D2AEF95F400CB92A3 /* LaunchScreen.storyboard in Resources */,
-				A5D78D812AEFF13600ED54B4 /* GoogleService-Info.plist in Resources */,
+				A528105F2AF0F90D00E12963 /* GoogleService-Info.plist in Resources */,
 				A5A84C1A2AEF95F400CB92A3 /* Assets.xcassets in Resources */,
 				A5A84C182AEF95F300CB92A3 /* Main.storyboard in Resources */,
 			);
@@ -288,6 +291,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A51185012AEF9DD90070F1A9 /* LoginViewController.swift in Sources */,
+				A528105D2AF00A0100E12963 /* DatabaseManager.swift in Sources */,
 				A51185032AEF9DE80070F1A9 /* RegisterViewController.swift in Sources */,
 				A5A84C152AEF95F300CB92A3 /* ConservationViewController.swift in Sources */,
 				A51185072AEF9E120070F1A9 /* VideoPlayerViewController.swift in Sources */,
@@ -452,6 +456,8 @@
 				DEVELOPMENT_TEAM = FQRWL84Z3B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Messengar/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "앱을 사용하기 위해서는 카메라의 허용이 필요합니다";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "앱을 사용하기 위해서는 카메라의 허용이 필요합니다";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -481,6 +487,8 @@
 				DEVELOPMENT_TEAM = FQRWL84Z3B;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Messengar/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "앱을 사용하기 위해서는 카메라의 허용이 필요합니다";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "앱을 사용하기 위해서는 카메라의 허용이 필요합니다";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
