@@ -111,8 +111,8 @@ class LoginViewController: UIViewController {
                               for: .touchUpInside)
         
         GoogleloginButton.addTarget(self,
-                              action: #selector(googleLogin),
-                              for: .touchUpInside)
+                                    action: #selector(googleLogin),
+                                    for: .touchUpInside)
         
         emailField.delegate = self
         passwordField.delegate = self
@@ -124,7 +124,7 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(passwordField)
         scrollView.addSubview(loginButton)
         scrollView.addSubview(GoogleloginButton)
-
+        
     }
     
     override func viewDidLayoutSubviews() {
@@ -148,9 +148,9 @@ class LoginViewController: UIViewController {
                                    width: scrollView.width - 60,
                                    height: 52)
         GoogleloginButton.frame = CGRect(x: 30,
-                                   y: loginButton.bottom + 10,
-                                   width: scrollView.width - 60,
-                                   height: 52)
+                                         y: loginButton.bottom + 10,
+                                         width: scrollView.width - 60,
+                                         height: 52)
     }
     
     @objc private func loginButtonTapped() {
@@ -217,7 +217,7 @@ extension LoginViewController: UITextFieldDelegate {
 
 extension LoginViewController {
     
-   @objc private func googleLogin() {
+    @objc private func googleLogin() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         
         // Create Google Sign In configuration object.
@@ -241,9 +241,36 @@ extension LoginViewController {
             
             DatabaseManager.shared.userExists(with: email, completion: { exists in
                 if !exists {
-                    DatabaseManager.shared.insertUser(with: chatAppUser(firstName: firstName ?? "",
-                                                                        lastName: lastName ?? "",
-                                                                        emailAddress: email))
+                    let chatUser = chatAppUser(firstName: firstName ?? "",
+                                               lastName: lastName ?? "",
+                                               emailAddress: email)
+                    DatabaseManager.shared.insertUser(with: chatUser, completion: { success in
+                        if success {
+                            // 이미지 업로드
+                            if profile.hasImage {
+                                guard let url = profile.imageURL(withDimension: 200) else {
+                                    return
+                                }
+                                URLSession.shared.dataTask(with: url, completionHandler: { data, _, _ in
+                                    guard let data = data else {
+                                        return
+                                    }
+                                    let fileName = chatUser.profilePictureFileName
+                                    StorageManager.shared.uploadProfilePicture(with: data, fileName: fileName, completion: { result in
+                                        switch result {
+                                        case .success(let downloadUrl):
+                                            UserDefaults.standard.set(downloadUrl, forKey: "profile_picture_url")
+                                            print(#fileID, #function, #line, "this is - \(downloadUrl)")
+                                        case .failure(let error):
+                                            print(#fileID, #function, #line, "this is - \(error)")
+                                        }
+                                    })
+                                    
+                                })
+                                .resume()
+                            }
+                        }
+                    })
                 }
             })
             

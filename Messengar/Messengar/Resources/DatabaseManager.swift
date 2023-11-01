@@ -34,12 +34,19 @@ extension DatabaseManager {
     }
     
     /// 데이터베이스에 새로운유저 추가하기
-    public func insertUser(with user: chatAppUser) {
+    public func insertUser(with user: chatAppUser, completion: @escaping (Bool) -> Void) {
         // 이메일을 기준으로 사용자를 구분한다.
         database.child(user.safeEmail).setValue([
             "first_name": user.firstName,
             "last_name": user.lastName
-        ])
+        ], withCompletionBlock: { error, _ in
+            guard error == nil else {
+                print(#fileID, #function, #line, "this is - 데이터베이스에 저장하는데 실패했다.")
+                completion(false)
+                return
+            }
+            completion(true)
+        })
     }
 }
 
@@ -54,5 +61,8 @@ struct chatAppUser {
         return safeEmail
     }
     
-    //    let profilePictureUrl: String
+    var profilePictureFileName: String  {
+        return "\(safeEmail)_profile_picture.png"
+    }
+    
 }
