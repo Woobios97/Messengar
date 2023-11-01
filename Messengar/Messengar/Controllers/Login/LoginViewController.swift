@@ -181,7 +181,7 @@ class LoginViewController: UIViewController {
             }
             let user = result.user
             
-            UserDefaults.standard.set(email, forKey: "email")
+            UserDefaults.standard.set(email, forKey: "email") // 현재 로그인유저가 누구인 지 알기위해서 userDefaults에 저장
             
             print(#fileID, #function, #line, "this is - 로그인유저 : \(user)")
             strongself.navigationController?.dismiss(animated: true)
@@ -242,7 +242,7 @@ extension LoginViewController {
             let firstName = profile.givenName
             let lastName = profile.familyName
             
-            UserDefaults.standard.set(email, forKey: "email")
+            UserDefaults.standard.set(email, forKey: "email")   // // 현재 로그인유저가 누구인 지 알기위해서 userDefaults에 저장
             
             DatabaseManager.shared.userExists(with: email, completion: { exists in
                 if !exists {
