@@ -180,6 +180,9 @@ class LoginViewController: UIViewController {
                 return
             }
             let user = result.user
+            
+            UserDefaults.standard.set(email, forKey: "email")
+            
             print(#fileID, #function, #line, "this is - 로그인유저 : \(user)")
             strongself.navigationController?.dismiss(animated: true)
         })
@@ -238,6 +241,8 @@ extension LoginViewController {
             let email = profile.email
             let firstName = profile.givenName
             let lastName = profile.familyName
+            
+            UserDefaults.standard.set(email, forKey: "email")
             
             DatabaseManager.shared.userExists(with: email, completion: { exists in
                 if !exists {
