@@ -15,6 +15,7 @@
 		A51185092AEF9E320070F1A9 /* NewConsersationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51185082AEF9E320070F1A9 /* NewConsersationViewController.swift */; };
 		A511850B2AEF9E440070F1A9 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A511850A2AEF9E440070F1A9 /* ProfileViewController.swift */; };
 		A511850E2AEFA66A0070F1A9 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A511850D2AEFA66A0070F1A9 /* Extensions.swift */; };
+		A51889962AF15D4000D02876 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51889952AF15D4000D02876 /* ChatViewController.swift */; };
 		A528105D2AF00A0100E12963 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A528105C2AF00A0100E12963 /* DatabaseManager.swift */; };
 		A528105F2AF0F90D00E12963 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A528105E2AF0F90D00E12963 /* GoogleService-Info.plist */; };
 		A5A84C112AEF95F300CB92A3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A84C102AEF95F300CB92A3 /* AppDelegate.swift */; };
@@ -35,6 +36,7 @@
 		A51185082AEF9E320070F1A9 /* NewConsersationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConsersationViewController.swift; sourceTree = "<group>"; };
 		A511850A2AEF9E440070F1A9 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		A511850D2AEFA66A0070F1A9 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		A51889952AF15D4000D02876 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		A528105C2AF00A0100E12963 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		A528105E2AF0F90D00E12963 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A5A84C0D2AEF95F300CB92A3 /* Messengar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messengar.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +80,7 @@
 				A51185062AEF9E120070F1A9 /* VideoPlayerViewController.swift */,
 				A51185082AEF9E320070F1A9 /* NewConsersationViewController.swift */,
 				A511850A2AEF9E440070F1A9 /* ProfileViewController.swift */,
+				A51889952AF15D4000D02876 /* ChatViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -300,6 +303,7 @@
 				A5A84C132AEF95F300CB92A3 /* SceneDelegate.swift in Sources */,
 				A511850B2AEF9E440070F1A9 /* ProfileViewController.swift in Sources */,
 				A51185052AEF9E080070F1A9 /* PhotoViewerViewController.swift in Sources */,
+				A51889962AF15D4000D02876 /* ChatViewController.swift in Sources */,
 				A51185092AEF9E320070F1A9 /* NewConsersationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
