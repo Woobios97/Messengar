@@ -229,9 +229,29 @@ class RegisterViewController: UIViewController {
                     print(#fileID, #function, #line, "this is - 계정생성오류")
                     return
                 }
-                DatabaseManager.shared.insertUser(with: chatAppUser(firstName: firstName,
-                                                                    lastName: lastName,
-                                                                    emailAddress: email))
+                let chatUser = chatAppUser(firstName: firstName,
+                                           lastName: lastName,
+                                           emailAddress: email)
+                
+                DatabaseManager.shared.insertUser(with: chatUser, completion: { success in
+                    if success {
+                        // 업로드 이미지
+                        guard let image = strongSelf.imageView.image,
+                              let data = image.pngData() else {
+                            return
+                        }
+                        let fileName = chatUser.profilePictureFileName
+                        StorageManager.shared.uploadProfilePicture(with: data, fileName: fileName, completion: { result in
+                            switch result {
+                            case .success(let downloadUrl):
+                                UserDefaults.standard.set(downloadUrl, forKey: "profile_picture_url")
+                                print(#fileID, #function, #line, "this is - \(downloadUrl)")
+                            case .failure(let error):
+                                print(#fileID, #function, #line, "this is - \(error)")
+                            }
+                        })
+                    }
+                })
                 strongSelf.navigationController?.dismiss(animated: true)
             })
         })
