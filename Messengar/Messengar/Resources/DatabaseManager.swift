@@ -8,11 +8,21 @@
 import Foundation
 import FirebaseDatabase
 
+enum DatabaseError: Error {
+    case failedFetch
+}
+
 final class DatabaseManager {
     
     static let shared = DatabaseManager()
     
     private let database = Database.database(url: "https://messengar-28a8d-default-rtdb.asia-southeast1.firebasedatabase.app").reference()
+    
+    static func safeEmail(emailAddress: String) -> String {
+        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
 }
 
 // MARK: - 계정 관리
@@ -45,9 +55,58 @@ extension DatabaseManager {
                 completion(false)
                 return
             }
+            
+            // 전체 사용자 정보 가져오기
+            self.database.child("users").observeSingleEvent(of: .value, with: { snapshot in
+                // 이미 'user'에 정보가 있다면, 새로운 사용자 정보를 기존의 배열에 추가한다.
+                if var usersCollection = snapshot.value as? [[String: String]] {
+                    // 유저딕셔너리 추가하기
+                    let newElement =  [
+                        "name": user.firstName + " " + user.lastName,
+                         "email": user.safeEmail
+                        ]
+                    usersCollection.append(newElement)
+                    
+                    self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    })
+                    // 만약 'user'에 아무런 정보가 없다면, 새로운 배열을 생성하고 그 안의 사용자 정보를 추가한다.
+                } else {
+                    // 배열 생성하기
+                    let newCollection: [[String: String]] = [
+                        [
+                        "name": user.firstName + " " + user.lastName,
+                         "email": user.safeEmail
+                        ]
+                    ]
+                    // users 키 아래에 사용자 정보를 업데이트한다.
+                    self.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            completion(false)
+                            return
+                        }
+                        completion(true)
+                    })
+                }
+            })
             completion(true)
         })
     }
+    
+    public func getAllUsers(completion: @escaping (Result<[[String: String]], Error>) -> Void) {
+        database.child("users").observeSingleEvent(of: .value, with: { snapshot in
+            guard let value = snapshot.value as? [[String: String]] else {
+                completion(.failure(DatabaseError.failedFetch))
+                return
+            }
+            completion(.success(value))
+        })
+    }
+    
 }
 
 struct chatAppUser {
