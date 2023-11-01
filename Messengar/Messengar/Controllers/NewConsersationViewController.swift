@@ -10,6 +10,8 @@ import JGProgressHUD
 
 class NewConsersationViewController: UIViewController {
     
+    public var completion: (([String: String]) -> (Void))?
+    
     private let spinner = JGProgressHUD(style: .extraLight)
     
     private var users = [[String: String]]()
@@ -85,6 +87,11 @@ extension NewConsersationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         // 새로운 대화창
+        let targetUserData = results[indexPath.row]
+        dismiss(animated: true, completion: { [weak self] in
+            self?.completion?(targetUserData)
+        })
+        
     }
     
     

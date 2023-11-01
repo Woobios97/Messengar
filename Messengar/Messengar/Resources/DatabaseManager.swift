@@ -27,6 +27,19 @@ final class DatabaseManager {
 
 // MARK: - 계정 관리
 extension DatabaseManager {
+    /*
+     users => [
+     [
+     "name":
+     "safe_email":
+     ],
+     [
+     "name":
+     "safe_email":
+     ]
+     ]
+     */
+    
     /// 유효성 검사
     public func userExists(with email: String,
                            completion: @escaping ((Bool) -> Void)) {
@@ -63,8 +76,8 @@ extension DatabaseManager {
                     // 유저딕셔너리 추가하기
                     let newElement =  [
                         "name": user.firstName + " " + user.lastName,
-                         "email": user.safeEmail
-                        ]
+                        "email": user.safeEmail
+                    ]
                     usersCollection.append(newElement)
                     
                     self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
@@ -79,8 +92,8 @@ extension DatabaseManager {
                     // 배열 생성하기
                     let newCollection: [[String: String]] = [
                         [
-                        "name": user.firstName + " " + user.lastName,
-                         "email": user.safeEmail
+                            "name": user.firstName + " " + user.lastName,
+                            "email": user.safeEmail
                         ]
                     ]
                     // users 키 아래에 사용자 정보를 업데이트한다.
@@ -107,6 +120,201 @@ extension DatabaseManager {
         })
     }
     
+}
+// MARK: - 메시지보내기 / 채팅들
+extension DatabaseManager {
+    
+    /*
+     "dfsdfdIfds" {
+     "messages": [
+     "id": String,
+     "type": text, photo, video,
+     "content": String,
+     "date": Date(),
+     "sender_email": String,
+     "isRead": true/false,
+     ｝
+     ]
+     }
+     conversation -> [
+     [
+     "conversation_id":
+     "other_user_email":
+     "latest_message": => {
+     "data": Date()
+     "latest_message": "message"
+     "is_read": true/false
+     }
+     ],
+     ]
+     */
+    
+    /// 대상 사용자 emamil과 첫 번째 메시지가 전송된 새 대화를 만듭니다.
+    public func createnewConversation(with otherUserEmail: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+        guard let currentEmail = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
+        }
+        let safeEmail = DatabaseManager.safeEmail(emailAddress: currentEmail)
+        let ref = database.child("\(safeEmail)")
+        ref.observeSingleEvent(of: .value, with: { snapshot in
+            guard var userNode = snapshot.value as? [String: Any] else {
+                completion(false)
+                print(#fileID, #function, #line, "this is - 유저를 찾을 수 없습니다.")
+                return
+            }
+            
+            let messageDate = firstMessage.sentDate
+            let dateString = ChatViewController.dateFormatter.string(from: messageDate)
+            
+            var message = ""
+            
+            switch firstMessage.kind {
+            case .text(let messageText):
+                message = messageText
+            case .attributedText(_):
+                break
+            case .photo(_):
+                break
+            case .video(_):
+                break
+            case .location(_):
+                break
+            case .emoji(_):
+                break
+            case .audio(_):
+                break
+            case .contact(_):
+                break
+            case .linkPreview(_):
+                break
+            case .custom(_):
+                break
+            }
+            
+            let conversationId = "conversation_\(firstMessage.messageId)"
+            
+            let newConversation: [String: Any] = [
+                "id": conversationId,
+                "other_user_email": otherUserEmail,
+                "latest_message": [
+                    "date": dateString,
+                    "message": message,
+                    "is_read": false
+                ]
+            ]
+            
+            if var conversations = userNode["conversations"] as? [[String: Any]] {
+                // 현재 사용자에 대한 대화(배열)이 존재합니다.
+                // 대화를 추가해야합니다.
+                conversations.append(newConversation)
+                userNode["conversations"] = conversations
+                ref.setValue(userNode, withCompletionBlock: { [weak self] error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                    self?.finishCreatingConversation(conversationID: conversationId,
+                                                     firstMessage: firstMessage,
+                                                     completion: completion)
+                })
+            } else {
+                // 대화 배열이 존재하지 않습니다
+                // 대화를 새로 만들어야합니다.
+                userNode["conversations"] = [
+                    newConversation
+                ]
+                ref.setValue(userNode, withCompletionBlock: { [weak self] error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        return
+                    }
+                    self?.finishCreatingConversation(conversationID: conversationId,
+                                                     firstMessage: firstMessage,
+                                                     completion: completion)
+                })
+            }
+        })
+    }
+    
+    /// 메세지 저장
+    private func finishCreatingConversation(conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void ) {
+        
+        let messageDate = firstMessage.sentDate
+        let dateString = ChatViewController.dateFormatter.string(from: messageDate)
+        
+        var message = ""
+        
+        switch firstMessage.kind {
+        case .text(let messageText):
+            message = messageText
+        case .attributedText(_):
+            break
+        case .photo(_):
+            break
+        case .video(_):
+            break
+        case .location(_):
+            break
+        case .emoji(_):
+            break
+        case .audio(_):
+            break
+        case .contact(_):
+            break
+        case .linkPreview(_):
+            break
+        case .custom(_):
+            break
+        }
+        
+        guard let myEmail = UserDefaults.standard.value(forKey: "email") as? String else {
+            completion(false)
+            return
+        }
+        
+        let currentUserEmail = DatabaseManager.safeEmail(emailAddress: myEmail)
+        
+        let collectionMessage: [String: Any] = [
+            "id": firstMessage.messageId,
+            "type:": firstMessage.kind.messageKindString,
+            "content": message,
+            "date": dateString,
+            "sender_email": currentUserEmail,
+            "is_read": false
+        ]
+        
+        let value: [String: Any] = [
+            "message": [
+                collectionMessage
+            ]
+        ]
+        
+        print(#fileID, #function, #line, "this is - \(conversationID)")
+        
+        database.child("\(conversationID)").setValue(value, withCompletionBlock: { error, _ in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        })
+    }
+    
+    
+    /// 이메일로 전달된 사용자의 모든 대화를 가져오고 반환합니다.
+    public func getAllConversations(for email: String, completion: @escaping (Result<String, Error>) -> Void) {
+        
+    }
+    
+    /// 특정 대화에 대한 모든 메시지를 가져옵니다.
+    public func getAllMessageForConversation(with id: String, completion: @escaping (Result<String, Error>) -> Void) {
+        
+    }
+    
+    /// 대상 대화 및 메시지와 함께 메시지를 보냅니다.
+    public func sendMessage(to conversation: String, message: Message, completion: @escaping (Bool) -> Void) {
+        
+    }
 }
 
 struct chatAppUser {
