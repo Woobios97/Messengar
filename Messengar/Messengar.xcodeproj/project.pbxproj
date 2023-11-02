@@ -25,6 +25,7 @@
 		A5A84C182AEF95F300CB92A3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C162AEF95F300CB92A3 /* Main.storyboard */; };
 		A5A84C1A2AEF95F400CB92A3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C192AEF95F400CB92A3 /* Assets.xcassets */; };
 		A5A84C1D2AEF95F400CB92A3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A5A84C1B2AEF95F400CB92A3 /* LaunchScreen.storyboard */; };
+		A5DB47F72AF38E3B00E07D4C /* ConversationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DB47F62AF38E3B00E07D4C /* ConversationTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		A5A84C192AEF95F400CB92A3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A5A84C1C2AEF95F400CB92A3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A5A84C1E2AEF95F400CB92A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A5DB47F62AF38E3B00E07D4C /* ConversationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewCell.swift; sourceTree = "<group>"; };
 		BC0DBE9CC50F53AF97DA61FE /* Pods-Messengar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messengar.debug.xcconfig"; path = "Target Support Files/Pods-Messengar/Pods-Messengar.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,6 +94,7 @@
 			children = (
 				A51184FF2AEF9BFD0070F1A9 /* Storyboards */,
 				A5A84C192AEF95F400CB92A3 /* Assets.xcassets */,
+				A5DB47F62AF38E3B00E07D4C /* ConversationTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -306,6 +309,7 @@
 				A5A84C132AEF95F300CB92A3 /* SceneDelegate.swift in Sources */,
 				A511850B2AEF9E440070F1A9 /* ProfileViewController.swift in Sources */,
 				A51185052AEF9E080070F1A9 /* PhotoViewerViewController.swift in Sources */,
+				A5DB47F72AF38E3B00E07D4C /* ConversationTableViewCell.swift in Sources */,
 				A51889962AF15D4000D02876 /* ChatViewController.swift in Sources */,
 				A51185092AEF9E320070F1A9 /* NewConsersationViewController.swift in Sources */,
 				A51889982AF1ECEC00D02876 /* StorageManager.swift in Sources */,
