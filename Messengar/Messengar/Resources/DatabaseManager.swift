@@ -150,13 +150,13 @@ extension DatabaseManager {
      */
     
     /// 대상 사용자 emamil과 첫 번째 메시지가 전송된 새 대화를 만듭니다.
-    public func createnewConversation(with otherUserEmail: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+    public func createnewConversation(with otherUserEmail: String, name: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
         guard let currentEmail = UserDefaults.standard.value(forKey: "email") as? String else {
             return
         }
         let safeEmail = DatabaseManager.safeEmail(emailAddress: currentEmail)
         let ref = database.child("\(safeEmail)")
-        ref.observeSingleEvent(of: .value, with: { snapshot in
+        ref.observeSingleEvent(of: .value, with: { [weak self] snapshot in
             guard var userNode = snapshot.value as? [String: Any] else {
                 completion(false)
                 print(#fileID, #function, #line, "this is - 유저를 찾을 수 없습니다.")
@@ -196,6 +196,7 @@ extension DatabaseManager {
             let newConversation: [String: Any] = [
                 "id": conversationId,
                 "other_user_email": otherUserEmail,
+                "name": name,
                 "latest_message": [
                     "date": dateString,
                     "message": message,
@@ -203,6 +204,30 @@ extension DatabaseManager {
                 ]
             ]
             
+            let recipient_newConversation: [String: Any] = [
+                "id": conversationId,
+                "other_user_email": safeEmail,
+                "name": "Self",
+                "latest_message": [
+                    "date": dateString,
+                    "message": message,
+                    "is_read": false
+                ]
+            ]
+            
+            // 수신자 대화항목 업데이트
+            self?.database.child("\(otherUserEmail)/conversations").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+                if var conversations = snapshot.value as? [[String: Any]] {
+                    // 추가하기
+                    conversations.append(recipient_newConversation)
+                    self?.database.child("\(otherUserEmail)/conversations").setValue(conversationId)
+                } else {
+                    // 생성하기
+                    self?.database.child("\(otherUserEmail)/conversations").setValue([recipient_newConversation])
+                }
+            })
+            
+            // 발신자 대화항목 업데이트
             if var conversations = userNode["conversations"] as? [[String: Any]] {
                 // 현재 사용자에 대한 대화(배열)이 존재합니다.
                 // 대화를 추가해야합니다.
@@ -213,7 +238,8 @@ extension DatabaseManager {
                         completion(false)
                         return
                     }
-                    self?.finishCreatingConversation(conversationID: conversationId,
+                    self?.finishCreatingConversation(name: name,
+                                                     conversationID: conversationId,
                                                      firstMessage: firstMessage,
                                                      completion: completion)
                 })
@@ -228,7 +254,8 @@ extension DatabaseManager {
                         completion(false)
                         return
                     }
-                    self?.finishCreatingConversation(conversationID: conversationId,
+                    self?.finishCreatingConversation(name: name,
+                                                     conversationID: conversationId,
                                                      firstMessage: firstMessage,
                                                      completion: completion)
                 })
@@ -237,7 +264,7 @@ extension DatabaseManager {
     }
     
     /// 메세지 저장
-    private func finishCreatingConversation(conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void ) {
+    private func finishCreatingConversation(name:String, conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void ) {
         
         let messageDate = firstMessage.sentDate
         let dateString = ChatViewController.dateFormatter.string(from: messageDate)
@@ -276,11 +303,12 @@ extension DatabaseManager {
         
         let collectionMessage: [String: Any] = [
             "id": firstMessage.messageId,
-            "type:": firstMessage.kind.messageKindString,
+            "type": firstMessage.kind.messageKindString,
             "content": message,
             "date": dateString,
             "sender_email": currentUserEmail,
-            "is_read": false
+            "is_read": false,
+            "name": name
         ]
         
         let value: [String: Any] = [
@@ -300,15 +328,64 @@ extension DatabaseManager {
         })
     }
     
-    
     /// 이메일로 전달된 사용자의 모든 대화를 가져오고 반환합니다.
-    public func getAllConversations(for email: String, completion: @escaping (Result<String, Error>) -> Void) {
-        
+    public func getAllConversations(for email: String, completion: @escaping (Result<[Conversation], Error>) -> Void) {
+        database.child("\(email)/conversations").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String: Any]] else {
+                completion(.failure(DatabaseError.failedFetch))
+                return
+            }
+            let conversations: [Conversation] = value.compactMap({ dictionary in
+                guard let conversationId = dictionary["id"] as? String,
+                      let name = dictionary["name"] as? String,
+                      let otherUserEmail = dictionary["other_user_email"] as? String,
+                      let latestMessage = dictionary["latest_message"] as? [String: Any],
+                      let date = latestMessage["date"] as? String,
+                      let message = latestMessage["message"] as? String,
+                      let isRead = latestMessage["is_read"] as? Bool else {
+                    return nil
+                }
+                let latestMessageObject = LatestMessage(date: date,
+                                                        text: message,
+                                                        isRead: isRead)
+                return Conversation(id: conversationId,
+                                    name: name,
+                                    otherUserEmail: otherUserEmail,
+                                    latestMessage: latestMessageObject)
+            })
+            completion(.success(conversations))
+        })
     }
     
     /// 특정 대화에 대한 모든 메시지를 가져옵니다.
-    public func getAllMessageForConversation(with id: String, completion: @escaping (Result<String, Error>) -> Void) {
-        
+    public func getAllMessageForConversation(with id: String, completion: @escaping (Result<[Message], Error>) -> Void) {
+        database.child("\(id)/message").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [[String: Any]] else {
+                completion(.failure(DatabaseError.failedFetch))
+                return
+            }
+            let messages: [Message] = value.compactMap({ dictionary in
+                guard let name = dictionary["name"] as? String,
+                      let isRead = dictionary["is_read"] as? Bool,
+                      let messageID = dictionary["id"] as? String,
+                      let content = dictionary["content"] as? String,
+                      let senderEmail = dictionary["sender_email"] as? String,
+                      let type = dictionary["type"] as? String,
+                      let dateString = dictionary["date"] as? String,
+                      let date = ChatViewController.dateFormatter.date(from: dateString) else {
+                    return nil
+                }
+                let sender = Sender(photoURL: "",
+                                    senderId: senderEmail,
+                                    displayName: name)
+                
+                return Message(sender: sender,
+                               messageId: messageID,
+                               sentDate: date,
+                               kind: .text(content))
+            })
+            completion(.success(messages))
+        })
     }
     
     /// 대상 대화 및 메시지와 함께 메시지를 보냅니다.
