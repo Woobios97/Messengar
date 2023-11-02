@@ -62,6 +62,7 @@ class ChatViewController: MessagesViewController {
     }()
     
     public let otherUserEmail: String   // 대화 상대의 이메일 주소
+    private let conversationId: String?
     public var isNewConversation = false    // 새로운 대화를 시작했는 지 혹은 기존 대화에 메시지를 추가하는 지를 나타내는 값
     
     private var messages = [Message]()
@@ -70,14 +71,17 @@ class ChatViewController: MessagesViewController {
         guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
             return nil
         }
+        let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
         return Sender(photoURL: "",
-                      senderId: email,
-                      displayName: "김우섭")
+                      senderId: safeEmail,
+                      displayName: "Me")
     }
-    
-    init(with email: String) {
+        
+    init(with email: String, id: String?) {
+        self.conversationId = id
         self.otherUserEmail = email
         super.init(nibName: nil, bundle: nil)
+
     }
     
     required init?(coder: NSCoder) {
@@ -93,13 +97,39 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
         
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
+        if let conversationId = conversationId {
+            listenForMessages(id: conversationId, shouldScrollToBottom: true)
+        }
     }
     
+    private func listenForMessages(id: String, shouldScrollToBottom: Bool) {
+        DatabaseManager.shared.getAllMessageForConversation(with: id, completion: { [weak self] result in
+            switch result {
+            case .success(let message):
+                print(#fileID, #function, #line, "this is - 메시지 불러오기 성공 \(message)")
+                guard !message.isEmpty else {
+                    return
+                }
+                self?.messages = message
+                
+                DispatchQueue.main.async {
+                    self?.messagesCollectionView.reloadDataAndKeepOffset()
+                    
+                    if shouldScrollToBottom {
+                        self?.messagesCollectionView.scrollToBottom()
+                    }
+                }
+            case .failure(let error):
+                print(#fileID, #function, #line, "this is - 메시지 불러오기 실패 \(error)")
+            }
+        })
+    }
     
 }
 
@@ -119,7 +149,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                                   messageId: messageId,
                                   sentDate: Date(),
                                   kind: .text(text))
-            DatabaseManager.shared.createnewConversation(with: otherUserEmail, firstMessage: message, completion: { success in
+            DatabaseManager.shared.createnewConversation(with: otherUserEmail, name: self.title ?? "User", firstMessage: message, completion: { success in
                 if success {
                     print(#fileID, #function, #line, "this is - 메시지보내졌다")
                 } else {
@@ -129,7 +159,6 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             })
         } else {
             // 기존 대화 데이터에 추가
-            
         }
     }
     
@@ -155,7 +184,6 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             return sender
         }
         fatalError("본인 발신자가 없습니다. 이메일은 캐시되어야 합니다.")
-        return Sender(photoURL: "", senderId: "12", displayName: "")
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessageKit.MessagesCollectionView) -> MessageKit.MessageType {
@@ -165,5 +193,4 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
     func numberOfSections(in messagesCollectionView: MessageKit.MessagesCollectionView) -> Int {
         return messages.count
     }
-    
 }
