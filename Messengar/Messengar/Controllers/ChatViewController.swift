@@ -136,29 +136,41 @@ class ChatViewController: MessagesViewController {
 extension ChatViewController: InputBarAccessoryViewDelegate {
     
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
+        print(#fileID, #function, #line, "this is - send버튼눌림")
         guard !text.replacingOccurrences(of: "", with: "").isEmpty,
               let selfSender = self.selfSender,
               let messageId = createMessageId() else {
             return
         }
         print(#fileID, #function, #line, "this is - \(text)")
+        let message = Message(sender: selfSender,
+                              messageId: messageId,
+                              sentDate: Date(),
+                              kind: .text(text))
         // 메시지 보내기
         if isNewConversation {
             // 데이터베이스에 대화 생성
-            let message = Message(sender: selfSender,
-                                  messageId: messageId,
-                                  sentDate: Date(),
-                                  kind: .text(text))
-            DatabaseManager.shared.createnewConversation(with: otherUserEmail, name: self.title ?? "User", firstMessage: message, completion: { success in
+            DatabaseManager.shared.createnewConversation(with: otherUserEmail, name: self.title ?? "User", firstMessage: message, completion: { [weak self] success in
                 if success {
                     print(#fileID, #function, #line, "this is - 메시지보내졌다")
+                    self?.isNewConversation = false
                 } else {
                     print(#fileID, #function, #line, "this is - 메시지보내기실패")
                 }
-                
             })
-        } else {
+        } 
+        else {
+            guard let conversationId = conversationId, let name = self.title else {
+                return
+            }
             // 기존 대화 데이터에 추가
+            DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: otherUserEmail, name: name, newMessage: message, completion: { success in
+                if success {
+                    print(#fileID, #function, #line, "this is - 메시지 보내기 성공")
+                } else {
+                    print(#fileID, #function, #line, "this is - 메시지 보내기 실패")
+                }
+            })
         }
     }
     

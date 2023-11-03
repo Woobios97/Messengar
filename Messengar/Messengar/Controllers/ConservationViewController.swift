@@ -13,10 +13,10 @@ struct Conversation {
     let id: String
     let name: String
     let otherUserEmail: String
-    let latestMessage: LatestMessage
+    let lastestMessage: LastestMessage
 }
 
-struct LatestMessage {
+struct LastestMessage {
     let date: String
     let text: String
     let isRead: Bool

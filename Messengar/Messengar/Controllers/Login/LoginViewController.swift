@@ -180,6 +180,20 @@ class LoginViewController: UIViewController {
                 return
             }
             let user = result.user
+            let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
+            DatabaseManager.shared.getDataFor(path: safeEmail, completion: { result in
+                switch result {
+                case .success(let data):
+                    guard let userData = data as? [String: Any],
+                          let firstName = userData["first_name"] as? String,
+                          let lastName = userData["last_name"] as? String else {
+                        return
+                    }
+                    UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
+                case .failure(let error):
+                    print(#fileID, #function, #line, "this is - 데이터불러오기실패 \(error)")
+                }
+            })
             
             UserDefaults.standard.set(email, forKey: "email") // 현재 로그인유저가 누구인 지 알기위해서 userDefaults에 저장
             
@@ -242,12 +256,18 @@ extension LoginViewController {
             let firstName = profile.givenName
             let lastName = profile.familyName
             
+            guard let firstName = firstName,
+                  let lastName = lastName else {
+                return
+            }
+            
             UserDefaults.standard.set(email, forKey: "email")   // // 현재 로그인유저가 누구인 지 알기위해서 userDefaults에 저장
+            UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
             
             DatabaseManager.shared.userExists(with: email, completion: { exists in
                 if !exists {
-                    let chatUser = chatAppUser(firstName: firstName ?? "",
-                                               lastName: lastName ?? "",
+                    let chatUser = chatAppUser(firstName: firstName,
+                                               lastName: lastName,
                                                emailAddress: email)
                     DatabaseManager.shared.insertUser(with: chatUser, completion: { success in
                         if success {
