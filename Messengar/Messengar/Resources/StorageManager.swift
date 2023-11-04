@@ -44,6 +44,29 @@ final class StorageManager {
         })
     }
     
+    /// 대화 메시지로 보낼 이미지 업로드
+    public func uploadMessagePhoto(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
+        storage.child("mesaage_images/\(fileName)").putData(data, metadata: nil, completion: { metaData, error in
+            guard error == nil else {
+                // failed
+                completion(.failure(StorageError.failedToUploda))
+                return
+            }
+            
+            self.storage.child("mesaage_images/\(fileName)").downloadURL(completion: { url, error in
+                guard let url = url else {
+                    print(#fileID, #function, #line, "this is - ")
+                    completion(.failure(StorageError.failedToDownloadURL))
+                    return
+                }
+                
+                let urlString = url.absoluteString
+                print(#fileID, #function, #line, "this is - \(urlString)")
+                completion(.success(urlString))
+            })
+        })
+    }
+    
     public func downloadURL(for path: String, completion: @escaping (Result<URL, Error>) -> Void) {
         let reference = storage.child(path)
         reference.downloadURL(completion: { url, error in
