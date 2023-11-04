@@ -23,14 +23,14 @@ final class StorageManager {
     
     /// Firebase 저장소에 사진을 업로드하고 다운로드할 URL 문자열로 완료를 반환합니다.
     public func uploadProfilePicture(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
-        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { metaData, error in
+        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { [weak self] metaData, error in
             guard error == nil else {
                 // failed
                 completion(.failure(StorageError.failedToUploda))
                 return
             }
             
-            self.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
+            self?.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
                 guard let url = url else {
                     print(#fileID, #function, #line, "this is - ")
                     completion(.failure(StorageError.failedToDownloadURL))
@@ -54,6 +54,29 @@ final class StorageManager {
             }
             
             self.storage.child("mesaage_images/\(fileName)").downloadURL(completion: { url, error in
+                guard let url = url else {
+                    print(#fileID, #function, #line, "this is - ")
+                    completion(.failure(StorageError.failedToDownloadURL))
+                    return
+                }
+                
+                let urlString = url.absoluteString
+                print(#fileID, #function, #line, "this is - \(urlString)")
+                completion(.success(urlString))
+            })
+        })
+    }
+    
+    /// 대화 메시지로 보낼 비디오 업로드
+    public func uploadMessageVideo(with fileUrl: URL, fileName: String, completion: @escaping UploadPictureCompletion) {
+        storage.child("mesaage_videos/\(fileName)").putFile(from: fileUrl, metadata: nil, completion: { [weak self] metaData, error in
+            guard error == nil else {
+                // failed
+                completion(.failure(StorageError.failedToUploda))
+                return
+            }
+            
+            self?.storage.child("mesaage_videos/\(fileName)").downloadURL(completion: { url, error in
                 guard let url = url else {
                     print(#fileID, #function, #line, "this is - ")
                     completion(.failure(StorageError.failedToDownloadURL))
