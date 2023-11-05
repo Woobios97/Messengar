@@ -48,6 +48,8 @@ class ProfileViewController: UIViewController {
                 guard let strongSelf = self else {
                     return
                 }
+                UserDefaults.standard.setValue(nil, forKey: "email")
+                UserDefaults.standard.setValue(nil, forKey: "name")
                 do {
                     try FirebaseAuth.Auth.auth().signOut()
                     let vc = LoginViewController()

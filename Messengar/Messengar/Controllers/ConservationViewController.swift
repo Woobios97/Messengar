@@ -50,6 +50,10 @@ class ConservationViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        noConversationLable.frame = CGRect(x: 10,
+                                           y: (view.height-100) / 2,
+                                           width: view.width - 20,
+                                           height: 100)
     }
     
     private var loginObserver: NSObjectProtocol?
@@ -62,7 +66,7 @@ class ConservationViewController: UIViewController {
         view.addSubview(noConversationLable)
         
         setupTableView()
-        fetchConversation()
+        
         startListeningForConversation()
         
         loginObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification, object: nil, queue: .main, using: { [weak self] _ in
@@ -88,8 +92,12 @@ class ConservationViewController: UIViewController {
             switch result {
             case .success(let conversations):
                 guard !conversations.isEmpty else {
+                    self?.tableView.isHidden = true
+                    self?.noConversationLable.isHidden = false
                     return
                 }
+                self?.noConversationLable.isHidden = true
+                self?.tableView.isHidden = false
                 self?.conversations = conversations
                 
                 DispatchQueue.main.async {
@@ -97,6 +105,8 @@ class ConservationViewController: UIViewController {
                 }
                     
             case .failure(let error):
+                self?.tableView.isHidden = true
+                self?.noConversationLable.isHidden = false
                 print(#fileID, #function, #line, "this is - 대화불러오기 실패 \(error)")
             }
             
@@ -179,9 +189,7 @@ class ConservationViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    private func fetchConversation() {
-        tableView.isHidden = false
-    }
+   
     
 }
 
