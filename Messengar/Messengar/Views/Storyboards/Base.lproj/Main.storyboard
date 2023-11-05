@@ -78,7 +78,7 @@
         <scene sceneID="Dbf-BL-W9X">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="fZ6-qb-gZo" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="채팅" id="0OR-lf-mdX"/>
+                    <tabBarItem key="tabBarItem" title="채팅" image="bubble.left.and.bubble.right" catalog="system" id="0OR-lf-mdX"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="OI2-Rv-VH4">
                         <rect key="frame" x="0.0" y="59" width="393" height="96"/>
@@ -97,7 +97,7 @@
         <scene sceneID="SPz-HF-EV2">
             <objects>
                 <navigationController id="g59-Ub-C5n" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="프로필" id="gyW-Ur-PMX"/>
+                    <tabBarItem key="tabBarItem" title="프로필" image="person.crop.circle" catalog="system" id="gyW-Ur-PMX"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="2Cf-Dh-Qlt">
                         <rect key="frame" x="0.0" y="59" width="393" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -112,6 +112,8 @@
         </scene>
     </scenes>
     <resources>
+        <image name="bubble.left.and.bubble.right" catalog="system" width="128" height="96"/>
+        <image name="person.crop.circle" catalog="system" width="128" height="123"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

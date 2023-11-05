@@ -11,6 +11,7 @@ import InputBarAccessoryView
 import SDWebImage
 import AVFoundation
 import AVKit
+import CoreLocation
 
 // 메시지의 기본 정보를 나타내는 구조체
 struct Message: MessageType {
@@ -61,7 +62,12 @@ struct Media: MediaItem {
     var size: CGSize
 }
 
-class ChatViewController: MessagesViewController {
+struct Location: LocationItem {
+    var location: CLLocation
+    var size: CGSize
+}
+
+class ChatViewController: MessagesViewController, CLLocationManagerDelegate {
     
     public static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -74,6 +80,7 @@ class ChatViewController: MessagesViewController {
     public let otherUserEmail: String   // 대화 상대의 이메일 주소
     private let conversationId: String?
     public var isNewConversation = false    // 새로운 대화를 시작했는 지 혹은 기존 대화에 메시지를 추가하는 지를 나타내는 값
+    let locationManager = CLLocationManager()
     
     private var messages = [Message]()
     
@@ -108,7 +115,25 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
         setupInputButton()
+        
+        locationManager.delegate = self
+        requestLocationPermission()
     }
+    
+    func requestLocationPermission() {
+           switch CLLocationManager.authorizationStatus() {
+           case .notDetermined:
+               locationManager.requestWhenInUseAuthorization()
+           case .restricted, .denied:
+               // 위치 서비스 거부됨. 사용자에게 설정에서 권한을 허용하도록 안내
+               break
+           case .authorizedWhenInUse, .authorizedAlways:
+               // 위치 서비스 허용됨
+               break
+           @unknown default:
+               break
+           }
+       }
     
     private func setupInputButton() {
         let button = InputBarButtonItem()
@@ -135,9 +160,53 @@ class ChatViewController: MessagesViewController {
         actionSheet.addAction(UIAlertAction(title: "오디오", style: .default, handler: { _ in
             
         }))
+        actionSheet.addAction(UIAlertAction(title: "위치", style: .default, handler: { [weak self] _ in
+            self?.presentLocationPicker()
+        }))
         actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         
         present(actionSheet, animated: true)
+    }
+    
+    private func presentLocationPicker() {
+        let vc = LocationPickerViewController(coordinates: nil)
+        vc.title = "위치를 선택해보세요"
+        vc.navigationItem.largeTitleDisplayMode = .never
+        vc.completion = { [weak self] selectedCoordinates in
+            
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let messageId = strongSelf.createMessageId(),
+                  let conversationId = strongSelf.conversationId,
+                  let selfSender = strongSelf.selfSender,
+                  let name = strongSelf.title else {
+                return
+            }
+            
+            let longtitude: Double = selectedCoordinates.longitude
+            let latitude: Double = selectedCoordinates.latitude
+            
+            print(#fileID, #function, #line, "this is - \(longtitude), \(latitude)")
+            
+            let location = Location(location: CLLocation(latitude: latitude, longitude: longtitude),
+                                 size: .zero)
+            
+            let message = Message(sender: selfSender,
+                                  messageId: messageId,
+                                  sentDate: Date(),
+                                  kind: .location(location))
+            
+            DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail: strongSelf.otherUserEmail, name: name, newMessage: message, completion: { success in
+                if success {
+                    print(#fileID, #function, #line, "this is - 위치보내기성공")
+                } else {
+                    print(#fileID, #function, #line, "this is - 위치보내기실패")
+                }
+            })
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     private func presentPhotoInputActionSheet() {
@@ -425,6 +494,25 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
 }
 
 extension ChatViewController: MessageCellDelegate {
+    
+    func didTapMessage(in cell: MessageCollectionViewCell) {
+        print(#fileID, #function, #line, "this is - ")
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else {
+            return
+        }
+        let message = messages[indexPath.section]
+        print(#fileID, #function, #line, "this is - \(message)")
+        switch message.kind {
+        case .location(let locationData):
+            let coordinates = locationData.location.coordinate
+            let vc = LocationPickerViewController(coordinates: coordinates)
+            vc.title = "위치"
+            self.navigationController?.pushViewController(vc, animated: true)
+        default:
+            break
+        }
+    }
+    
     func didTapImage(in cell: MessageCollectionViewCell) {
         print(#fileID, #function, #line, "this is - ")
         guard let indexPath = messagesCollectionView.indexPath(for: cell) else {
