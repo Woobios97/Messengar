@@ -12,14 +12,22 @@ import CoreLocation
 
 enum DatabaseError: Error {
     case failedFetch
+    
+    public var localizedDescription: String {
+        switch self {
+        case .failedFetch:
+            return "데이터 가져오기 실패입니다."
+        }
+    }
 }
 
+/// 실시간 Firebase 데이터베이스에서 데이터를 읽고 쓰는 관리자 객체
 final class DatabaseManager {
     
     static let shared = DatabaseManager()
     
     private let database = Database.database(url: "https://messengar-28a8d-default-rtdb.asia-southeast1.firebasedatabase.app").reference()
-    
+        
     static func safeEmail(emailAddress: String) -> String {
         var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
         safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
@@ -28,6 +36,8 @@ final class DatabaseManager {
 }
 
 extension DatabaseManager {
+    
+    /// 하위 경로의 사전 노드를 반환합니다.
     public func getDataFor(path: String, completion: @escaping (Result<Any, Error>) -> Void) {
         self.database.child("\(path)").observeSingleEvent(of: .value) { snapshot in
             guard let value = snapshot.value else {
@@ -41,20 +51,11 @@ extension DatabaseManager {
 
 // MARK: - 계정 관리
 extension DatabaseManager {
-    /*
-     users => [
-     [
-     "name":
-     "safe_email":
-     ],
-     [
-     "name":
-     "safe_email":
-     ]
-     ]
-     */
     
     /// 유효성 검사
+    /// 파라미터
+    /// - 'email': 확인할 대상 이메일
+    /// - 'completion': 결과와 함께 반환되는 비동기 클로저
     public func userExists(with email: String,
                            completion: @escaping ((Bool) -> Void)) {
         let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
@@ -74,7 +75,12 @@ extension DatabaseManager {
         database.child(user.safeEmail).setValue([
             "first_name": user.firstName,
             "last_name": user.lastName
-        ], withCompletionBlock: { error, _ in
+        ], withCompletionBlock: { [weak self] error, _ in
+            
+            guard let strongSelf = self else {
+                return
+            }
+            
             guard error == nil else {
                 print(#fileID, #function, #line, "this is - 데이터베이스에 저장하는데 실패했다.")
                 completion(false)
@@ -82,7 +88,7 @@ extension DatabaseManager {
             }
             
             // 전체 사용자 정보 가져오기
-            self.database.child("users").observeSingleEvent(of: .value, with: { snapshot in
+            strongSelf.database.child("users").observeSingleEvent(of: .value, with: { snapshot in
                 // 이미 'user'에 정보가 있다면, 새로운 사용자 정보를 기존의 배열에 추가한다.
                 if var usersCollection = snapshot.value as? [[String: String]] {
                     // 유저딕셔너리 추가하기
@@ -92,7 +98,7 @@ extension DatabaseManager {
                     ]
                     usersCollection.append(newElement)
                     
-                    self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
+                    strongSelf.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
                         guard error == nil else {
                             completion(false)
                             return
@@ -109,7 +115,7 @@ extension DatabaseManager {
                         ]
                     ]
                     // users 키 아래에 사용자 정보를 업데이트한다.
-                    self.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
+                    strongSelf.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
                         guard error == nil else {
                             completion(false)
                             return

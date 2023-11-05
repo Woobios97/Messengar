@@ -8,7 +8,7 @@
 import UIKit
 import JGProgressHUD
 
-class NewConsersationViewController: UIViewController {
+final class NewConsersationViewController: UIViewController {
     
     public var completion: ((SearchResult) -> (Void))?
     
@@ -73,7 +73,6 @@ class NewConsersationViewController: UIViewController {
     
 }
 
-
 extension NewConsersationViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return results.count
@@ -99,12 +98,9 @@ extension NewConsersationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 90
     }
-    
-    
 }
 
 extension NewConsersationViewController: UISearchBarDelegate {
-    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.isEmpty else {
             return
@@ -114,7 +110,7 @@ extension NewConsersationViewController: UISearchBarDelegate {
         results.removeAll() // 새로운 검색이 있을 때마다 삭제
         spinner.show(in: view)
         
-        self.searchUsers(query: text)
+        searchUsers(query: text)
     }
     
     func searchUsers(query: String) {
@@ -147,7 +143,7 @@ extension NewConsersationViewController: UISearchBarDelegate {
         
         self.spinner.dismiss()
         
-        var results: [SearchResult] = self.users.filter ({
+        let results: [SearchResult] = users.filter ({
             guard let email = $0["email"], email != safeEmail else {
                 return false
             }
@@ -171,17 +167,12 @@ extension NewConsersationViewController: UISearchBarDelegate {
     
     func updateUI() {
         if results.isEmpty {
-            self.noResultsLabel.isHidden = false
-            self.tableView.isHidden = true
+            noResultsLabel.isHidden = false
+            tableView.isHidden = true
         } else {
-            self.noResultsLabel.isHidden = true
-            self.tableView.isHidden = false
-            self.tableView.reloadData()
+            noResultsLabel.isHidden = true
+            tableView.isHidden = false
+            tableView.reloadData()
         }
     }
-}
-
-struct SearchResult {
-    let name: String
-    let email: String
 }
