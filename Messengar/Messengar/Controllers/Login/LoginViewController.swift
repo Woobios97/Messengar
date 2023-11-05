@@ -197,7 +197,7 @@ class LoginViewController: UIViewController {
             
             UserDefaults.standard.set(email, forKey: "email") // 현재 로그인유저가 누구인 지 알기위해서 userDefaults에 저장
             
-            print(#fileID, #function, #line, "this is - 로그인유저 : \(user)")
+            print(#fileID, #function, #line, "this is - 로그인유저 : \(user.email)")
             strongself.navigationController?.dismiss(animated: true)
         })
     }
