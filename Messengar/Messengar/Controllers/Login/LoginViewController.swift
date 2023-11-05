@@ -11,7 +11,7 @@ import FirebaseAuth
 import GoogleSignIn
 import JGProgressHUD
 
-class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .extraLight)
     
