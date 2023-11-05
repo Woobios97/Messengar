@@ -52,8 +52,7 @@ class NewConversationCell: UITableViewCell {
     }
     
     public func configure(with model: SearchResult) {
-        self.userNameLabel.text = model.name
-        
+        userNameLabel.text = model.name
         let path = "images/\(model.email)_profile_picture.png"
         StorageManager.shared.downloadURL(for: path, completion: { [weak self] result in
             switch result {
@@ -64,7 +63,6 @@ class NewConversationCell: UITableViewCell {
             case .failure(let error):
                 print(#fileID, #function, #line, "this is - 이미지캐싱 실패 \(error)")
             }
-            
         })
     }
 }

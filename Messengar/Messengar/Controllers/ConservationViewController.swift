@@ -9,21 +9,8 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
-struct Conversation {
-    let id: String
-    let name: String
-    let otherUserEmail: String
-    let lastestMessage: LastestMessage
-}
-
-struct LastestMessage {
-    let date: String
-    let text: String
-    let isRead: Bool
-}
-
-
-class ConservationViewController: UIViewController {
+/// 대화 목록을 보여주는 컨트롤러
+final class ConservationViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .extraLight)
     
@@ -73,7 +60,6 @@ class ConservationViewController: UIViewController {
             guard let strongSelf = self else {
                 return
             }
-            
             strongSelf.startListeningForConversation()
         })
     }
@@ -109,7 +95,6 @@ class ConservationViewController: UIViewController {
                 self?.noConversationLable.isHidden = false
                 print(#fileID, #function, #line, "this is - 대화불러오기 실패 \(error)")
             }
-            
         })
     }
     
@@ -144,7 +129,6 @@ class ConservationViewController: UIViewController {
         // 이 두 사용자와의 대화가 존재하는지 데이터베이스에서 확인합니다.
         // 그렇다면 대화 ID를 재사용합니다.
         // 그렇지 않으면 기존 코드를 사용합니다.
-        
         DatabaseManager.shared.conversationExists(with: email, completion: { [weak self] result in
             guard let strongSelf = self else {
                 return
@@ -164,8 +148,6 @@ class ConservationViewController: UIViewController {
                 strongSelf.navigationController?.pushViewController(vc, animated: true)
             }
         })
-        
-       
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -188,13 +170,9 @@ class ConservationViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
     }
-    
-   
-    
 }
 
 extension ConservationViewController: UITableViewDelegate, UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return conversations.count
     }
@@ -233,14 +211,14 @@ extension ConservationViewController: UITableViewDelegate, UITableViewDataSource
             // 삭제 시작
             let conversationId = conversations[indexPath.row].id
             tableView.beginUpdates()
+            self.conversations.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .left)
             
-            DatabaseManager.shared.deleteConversation(conversationsId: conversationId, completion: { [weak self] success in
-                if success {
-                    self?.conversations.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath], with: .left)
+            DatabaseManager.shared.deleteConversation(conversationsId: conversationId, completion: { success in
+                if !success {
+                   // 모델 및 행을 다시 추가하고 오류 경고 표시
                 }
             })
-            
             tableView.endUpdates()
         }
     }

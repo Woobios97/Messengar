@@ -48,7 +48,6 @@ class LocationPickerViewController: UIViewController {
             map.setRegion(region, animated: true)
         }
         
-        
         if isPickable {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "보내기",
                                                                 style: .done,

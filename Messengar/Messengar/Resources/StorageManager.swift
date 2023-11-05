@@ -13,9 +13,12 @@ enum StorageError: Error {
     case failedToDownloadURL
 }
 
+/// Firebase 저장소에 파일을 가져오고, 가져오고, 업로드할 수 있습니다.
 final class StorageManager {
     
     static let shared = StorageManager()
+    
+    private init() {}
     
     private let storage =  Storage.storage().reference() // Firebase Storage의 루트 참조를 가져오기
     
@@ -24,13 +27,17 @@ final class StorageManager {
     /// Firebase 저장소에 사진을 업로드하고 다운로드할 URL 문자열로 완료를 반환합니다.
     public func uploadProfilePicture(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
         storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { [weak self] metaData, error in
+            guard let strongSelf = self else {
+                return
+            }
+            
             guard error == nil else {
                 // failed
                 completion(.failure(StorageError.failedToUploda))
                 return
             }
             
-            self?.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
+            strongSelf.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
                 guard let url = url else {
                     print(#fileID, #function, #line, "this is - ")
                     completion(.failure(StorageError.failedToDownloadURL))
