@@ -37,7 +37,7 @@ class LocationPickerViewController: UIViewController {
         
         // 좌표가 제공되지 않았거나 유효하지 않을 경우 기본 좌표 설정
         if coordinates == nil {
-            // 예: 서울의 좌표를 기본값으로 설정
+            // 서울의 좌표를 기본값으로 설정
             coordinates = CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780)
             isPickable = true
         }
