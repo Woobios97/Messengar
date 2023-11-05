@@ -592,6 +592,43 @@ extension DatabaseManager {
             }
         })
     }
+    public func deleteConversation(conversationsId: String, completion: @escaping (Bool) -> Void) {
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
+        }
+        let safeEmail = DatabaseManager.safeEmail(emailAddress: email)
+        
+        print(#fileID, #function, #line, "this is - 삭제되는 Id \(conversationsId)")
+        
+        // 모든 대화를 가져온다.
+        // 대상 ID가 있는 컬렉션에서 대화를 삭제한다.
+        // 데이터베이스에서 사용자에 대한 대화를 재설정한다.
+        let ref = database.child("\(safeEmail)/conversations")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            if var conversations = snapshot.value as? [[String: Any]] {
+                var positionToRemove = 0
+                for conversation in conversations {
+                    if let id = conversation["id"] as? String,
+                       id == conversationsId {
+                        print(#fileID, #function, #line, "this is - 삭제를위한대화찾기")
+                        break
+                    }
+                    positionToRemove += 1
+                }
+                conversations.remove(at: positionToRemove)
+                ref.setValue(conversations, withCompletionBlock: { error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        print(#fileID, #function, #line, "this is - 대화삭제실패")
+                        return
+                    }
+                    print(#fileID, #function, #line, "this is - 대화삭제성공")
+                    completion(true)
+                    
+                })
+            }
+        }
+    }
 }
 
 struct chatAppUser {
