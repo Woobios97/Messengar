@@ -10,7 +10,7 @@ import CoreLocation
 import MapKit
 
 class LocationPickerViewController: UIViewController {
-
+    
     public var completion: ((CLLocationCoordinate2D) -> Void)?
     private var coordinates: CLLocationCoordinate2D?
     private var isPickable = true
@@ -32,8 +32,23 @@ class LocationPickerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
         view.backgroundColor = .systemBackground
+        
+        // 좌표가 제공되지 않았거나 유효하지 않을 경우 기본 좌표 설정
+        if coordinates == nil {
+            // 예: 서울의 좌표를 기본값으로 설정
+            coordinates = CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780)
+            isPickable = true
+        }
+        
+        // 지도의 중심을 초기화된 좌표로 설정
+        if let initialCoordinates = coordinates {
+            let region = MKCoordinateRegion(center: initialCoordinates, latitudinalMeters: 1000, longitudinalMeters: 1000)
+            map.setRegion(region, animated: true)
+        }
+        
+        
         if isPickable {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "보내기",
                                                                 style: .done,
@@ -47,17 +62,13 @@ class LocationPickerViewController: UIViewController {
             map.addGestureRecognizer(gesture)
         } else {
             // just 위치보여주기
-            guard let coordinates = self.coordinates else {
-                return
+            if let validCoordinates = coordinates {
+                let pin = MKPointAnnotation()
+                pin.coordinate = validCoordinates
+                map.addAnnotation(pin)
             }
-            
-            let pin = MKPointAnnotation()
-            pin.coordinate = coordinates
-            map.addAnnotation(pin)
         }
-      
         view.addSubview(map)
-     
     }
     
     
@@ -83,10 +94,9 @@ class LocationPickerViewController: UIViewController {
         pin.coordinate = coordinates
         map.addAnnotation(pin)
     }
- 
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         map.frame = view.bounds
     }
-    
 }
