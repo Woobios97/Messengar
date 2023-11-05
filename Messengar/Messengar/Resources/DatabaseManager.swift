@@ -414,12 +414,12 @@ extension DatabaseManager {
                     kind = .video(media)
                 }
                 else if type == "location" {
-                    let locationComponents = content.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: ",")
+                    let locationComponents = content.components(separatedBy: ",")
                     guard let longitude = Double(locationComponents[0]), let latitude = Double(locationComponents[1]) else {
                         return nil
                     }
                     print(#fileID, #function, #line, "this is - \(longitude), \(latitude)")
-                    let isPickable = (longitude == nil && latitude == nil)
+                    
                     let location = Location(location: CLLocation(latitude: latitude, longitude: longitude),
                                             size: CGSize(width: 300, height: 300))
                     kind = .location(location)
