@@ -201,6 +201,7 @@
 				A5A84C0A2AEF95F300CB92A3 /* Frameworks */,
 				A5A84C0B2AEF95F300CB92A3 /* Resources */,
 				A537E1C4DF59E1B6EC0D54DC /* [CP] Embed Pods Frameworks */,
+				A5CC5E192AF7BDE600FD8D85 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -275,6 +276,23 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Messengar/Pods-Messengar-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		A5CC5E192AF7BDE600FD8D85 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 		};
 		C9FF7102F3BD148C864EF962 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

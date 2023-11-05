@@ -229,6 +229,9 @@ class RegisterViewController: UIViewController {
                     print(#fileID, #function, #line, "this is - 계정생성오류")
                     return
                 }
+                UserDefaults.standard.setValue(email, forKey: "email")
+                UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
+                
                 let chatUser = chatAppUser(firstName: firstName,
                                            lastName: lastName,
                                            emailAddress: email)
